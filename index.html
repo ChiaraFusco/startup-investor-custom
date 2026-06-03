@@ -3,11 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monthly Investor Update</title>
+<title>Startup Monthly Investor Update — Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+/* ── UPGRADE HINT ─────────────────────────────── */
+function showUpgradeHint() {
+  const hint = document.createElement('div');
+  hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #d8d6ce;border-radius:10px;padding:32px 40px;text-align:center;z-index:999;box-shadow:0 8px 40px rgba(0,0,0,.15);font-family:var(--sans);max-width:380px;';
+  hint.innerHTML = `
+    <div style="font-size:28px;margin-bottom:12px">🔒</div>
+    <div style="font-family:var(--serif);font-size:22px;color:#0f1117;margin-bottom:8px">PDF export</div>
+    <div style="font-size:14px;color:#5a6074;line-height:1.6;margin-bottom:24px">Available in the full version.<br>Purchase once, use forever.</div>
+    <a href="https://fscchr.lemonsqueezy.com/checkout/buy/3d31abfd-d16d-426f-b3d8-576ee8d040a7" target="_blank" style="display:inline-block;background:#1a3a5c;color:#fff;padding:10px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:12px">Get full version — €29</a>
+    <br>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8c92a4;font-size:13px;cursor:pointer;font-family:var(--sans);margin-top:4px">Continue browsing demo</button>
+  `;
+  // backdrop
+  const bd = document.createElement('div');
+  bd.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;';
+  bd.onclick = () => { hint.remove(); bd.remove(); };
+  document.body.appendChild(bd);
+  document.body.appendChild(hint);
+}
+
+</script>
 <style>
   :root {
     --ink: #0f1117;
@@ -343,6 +364,33 @@
   }
 
   /* ── PRINT / PDF ───────────────────────────────── */
+
+  /* ── DEMO BANNER ──────────────────────────────── */
+  #demo-banner {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    background: #0f1117;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 28px;
+    font-family: var(--sans); font-size: 13px;
+  }
+  #demo-banner .demo-left {
+    display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.7);
+  }
+  #demo-banner .demo-badge {
+    background: #e8c84a; color: #0f1117; font-size: 10px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; padding: 3px 9px;
+    border-radius: 3px; flex-shrink: 0;
+  }
+  #demo-banner .demo-cta {
+    background: #fff; color: #0f1117; font-weight: 500; font-size: 13px;
+    padding: 7px 20px; border-radius: 5px; text-decoration: none;
+    white-space: nowrap; transition: background .15s; font-family: var(--sans);
+    border: none; cursor: pointer;
+  }
+  #demo-banner .demo-cta:hover { background: #e8f0f8; }
+  .page-wrap { padding-bottom: 80px !important; }
+  @media print { #demo-banner { display: none !important; } }
+
   @media print {
     #edit-bar { display: none !important; }
     .chart-data-input { display: none !important; }
@@ -418,8 +466,17 @@
   <div class="bar-actions">
     <button class="bar-btn" onclick="toggleEdit()">👁 Preview</button>
     <button class="bar-btn" onclick="toggleCustomize()" id="customize-btn">🎨 Customize</button>
-    <button class="bar-btn primary" onclick="exportPDF()">↓ Export PDF</button>
+    <button class="bar-btn primary" onclick="showUpgradeHint()" style="opacity:.5;cursor:not-allowed" title="Available in full version">↓ Export PDF</button>
   </div>
+</div>
+
+<!-- DEMO BANNER -->
+<div id="demo-banner">
+  <div class="demo-left">
+    <span class="demo-badge">Demo</span>
+    <span>You're viewing the free demo — PDF export and full customization available in the purchased version</span>
+  </div>
+  <a class="demo-cta" href="https://fscchr.lemonsqueezy.com/checkout/buy/3d31abfd-d16d-426f-b3d8-576ee8d040a7" target="_blank">Get full version — €29 →</a>
 </div>
 
 <!-- CUSTOMIZE PANEL -->
@@ -1047,6 +1104,27 @@ function resetCustomize() {
   if (mrrChart)  { mrrChart.destroy();  buildMRR(); }
   if (burnChart) { burnChart.destroy(); buildBurn(); }
 }
+
+/* ── UPGRADE HINT ─────────────────────────────── */
+function showUpgradeHint() {
+  const hint = document.createElement('div');
+  hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid #d8d6ce;border-radius:10px;padding:32px 40px;text-align:center;z-index:999;box-shadow:0 8px 40px rgba(0,0,0,.15);font-family:var(--sans);max-width:380px;';
+  hint.innerHTML = `
+    <div style="font-size:28px;margin-bottom:12px">🔒</div>
+    <div style="font-family:var(--serif);font-size:22px;color:#0f1117;margin-bottom:8px">PDF export</div>
+    <div style="font-size:14px;color:#5a6074;line-height:1.6;margin-bottom:24px">Available in the full version.<br>Purchase once, use forever.</div>
+    <a href="https://fscchr.lemonsqueezy.com/checkout/buy/3d31abfd-d16d-426f-b3d8-576ee8d040a7" target="_blank" style="display:inline-block;background:#1a3a5c;color:#fff;padding:10px 28px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:12px">Get full version — €29</a>
+    <br>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8c92a4;font-size:13px;cursor:pointer;font-family:var(--sans);margin-top:4px">Continue browsing demo</button>
+  `;
+  // backdrop
+  const bd = document.createElement('div');
+  bd.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;';
+  bd.onclick = () => { hint.remove(); bd.remove(); };
+  document.body.appendChild(bd);
+  document.body.appendChild(hint);
+}
+
 </script>
 </body>
 </html>
