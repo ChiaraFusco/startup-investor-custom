@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Investor Update</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --ink: #0f1117;
+    --ink-2: #2c3142;
+    --ink-3: #5a6074;
+    --ink-4: #8c92a4;
+    --ink-5: #c4c8d2;
+    --paper: #f8f7f4;
+    --paper-2: #f0efe9;
+    --paper-3: #e6e4dc;
+    --accent: #1a3a5c;
+    --accent-2: #2d5a8e;
+    --accent-light: #e8f0f8;
+    --green: #1a4d3a;
+    --green-light: #e6f2ec;
+    --red: #7a1f1f;
+    --red-light: #faeaea;
+    --amber: #6b4c00;
+    --amber-light: #fdf3dc;
+    --rule: #d8d6ce;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --page-width: 860px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── EDIT MODE TOGGLE ─────────────────────────── */
+  #edit-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 28px;
+    font-size: 12px; color: rgba(255,255,255,.75);
+    print-color-adjust: exact;
+  }
+  #edit-bar strong { color: #fff; font-weight: 500; }
+  .bar-actions { display: flex; gap: 8px; }
+  .bar-btn {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    color: #fff; padding: 5px 14px; border-radius: 4px; font-size: 12px;
+    font-family: var(--sans); cursor: pointer; transition: background .15s;
+  }
+  .bar-btn:hover { background: rgba(255,255,255,.22); }
+  .bar-btn.primary { background: #fff; color: var(--accent); font-weight: 500; }
+  .bar-btn.primary:hover { background: #e8f0f8; }
+
+  /* ── LAYOUT ────────────────────────────────────── */
+  .page-wrap {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: 80px 40px 60px;
+  }
+
+  /* ── EDITABLE FIELDS ───────────────────────────── */
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 3px;
+    transition: background .15s, box-shadow .15s;
+    cursor: text;
+  }
+  body.edit-mode [contenteditable="true"]:hover {
+    background: rgba(45,90,142,.07);
+  }
+  body.edit-mode [contenteditable="true"]:focus {
+    background: rgba(45,90,142,.1);
+    box-shadow: 0 0 0 2px rgba(45,90,142,.25);
+  }
+  body:not(.edit-mode) [contenteditable="true"] {
+    pointer-events: none;
+  }
+
+  /* ── HEADER ────────────────────────────────────── */
+  .report-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 24px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 40px;
+  }
+  .company-name {
+    font-family: var(--serif);
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--ink);
+    letter-spacing: -.5px;
+  }
+  .report-meta {
+    text-align: right;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .report-period {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--ink);
+  }
+  .report-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .report-tagline {
+    font-size: 15px;
+    color: var(--ink-3);
+    font-weight: 300;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── SECTION ───────────────────────────────────── */
+  .section { margin-bottom: 44px; }
+  .section-header {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .section-rule {
+    flex: 1; height: 1px; background: var(--rule);
+  }
+
+  /* ── KPI GRID ──────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .kpi-cell {
+    background: #fff;
+    padding: 20px 22px;
+    position: relative;
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: var(--serif);
+    font-size: 32px;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -.5px;
+    margin-bottom: 6px;
+  }
+  .kpi-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 500;
+    padding: 2px 7px; border-radius: 3px;
+  }
+  .kpi-delta.up { background: var(--green-light); color: var(--green); }
+  .kpi-delta.down { background: var(--red-light); color: var(--red); }
+  .kpi-delta.flat { background: var(--paper-2); color: var(--ink-3); }
+  .kpi-sub {
+    font-size: 11px; color: var(--ink-4); margin-top: 4px;
+  }
+
+  /* ── DELTA SELECTOR ────────────────────────────── */
+  .delta-wrap { margin-top: 6px; }
+  body:not(.edit-mode) .delta-selector { display: none; }
+  .delta-selector {
+    display: inline-flex; gap: 4px; margin-top: 4px;
+  }
+  .delta-opt {
+    font-size: 10px; padding: 2px 6px; border-radius: 3px;
+    border: 1px solid var(--rule); background: var(--paper-2);
+    color: var(--ink-3); cursor: pointer; transition: all .1s;
+  }
+  .delta-opt:hover { border-color: var(--accent-2); color: var(--accent); }
+  .delta-opt.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ── TWO-COL ───────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  /* ── CHART CARD ────────────────────────────────── */
+  .chart-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 24px;
+  }
+  .chart-card-title {
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-4); margin-bottom: 16px;
+  }
+  .chart-wrap { position: relative; height: 160px; }
+
+  /* ── NARRATIVE BLOCKS ──────────────────────────── */
+  .narrative-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .narrative-cell {
+    background: #fff;
+    padding: 22px 24px;
+  }
+  .narrative-cell-title {
+    font-size: 10px; font-weight: 500; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px;
+  }
+  .narrative-cell-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; margin-bottom: 10px;
+  }
+  .icon-green { background: var(--green-light); }
+  .icon-amber { background: var(--amber-light); }
+  .icon-red { background: var(--red-light); }
+  .narrative-text {
+    font-size: 13px; line-height: 1.7; color: var(--ink-2);
+  }
+  .bullet-list {
+    list-style: none; padding: 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .bullet-list li {
+    font-size: 13px; line-height: 1.6; color: var(--ink-2);
+    padding-left: 14px; position: relative;
+  }
+  .bullet-list li::before {
+    content: '—'; position: absolute; left: 0;
+    color: var(--ink-5); font-size: 11px; top: 2px;
+  }
+
+  /* ── ASKS / HELP NEEDED ────────────────────────── */
+  .asks-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .ask-card {
+    background: var(--accent-light);
+    border: 1px solid #c4d8ee;
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .ask-number {
+    font-family: var(--serif);
+    font-size: 22px; color: var(--accent-2);
+    margin-bottom: 6px;
+  }
+  .ask-text {
+    font-size: 13px; line-height: 1.6; color: var(--ink-2);
+  }
+
+  /* ── FINANCIALS TABLE ──────────────────────────── */
+  .fin-table {
+    width: 100%; border-collapse: collapse;
+  }
+  .fin-table th {
+    font-size: 10px; font-weight: 500; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-4);
+    text-align: right; padding: 8px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .fin-table th:first-child { text-align: left; }
+  .fin-table td {
+    padding: 10px 12px; font-size: 13px; color: var(--ink-2);
+    text-align: right; border-bottom: 1px solid var(--paper-3);
+  }
+  .fin-table td:first-child { text-align: left; color: var(--ink); font-weight: 500; }
+  .fin-table tr:last-child td { border-bottom: none; }
+  .fin-table .total-row td {
+    border-top: 1px solid var(--rule);
+    font-weight: 500; color: var(--ink);
+    border-bottom: none;
+  }
+  .positive { color: var(--green) !important; }
+  .negative { color: var(--red) !important; }
+
+  /* ── FOOTER ────────────────────────────────────── */
+  .report-footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-confidential {
+    font-size: 11px; color: var(--ink-5); letter-spacing: .06em;
+  }
+  .footer-page {
+    font-size: 11px; color: var(--ink-5);
+  }
+
+  /* ── MRR TREND INPUT ───────────────────────────── */
+  .chart-data-input {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--paper-2);
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    font-size: 11px; color: var(--ink-3);
+  }
+  body.edit-mode .chart-data-input { display: block; }
+  .chart-data-input label {
+    display: block; margin-bottom: 4px; font-weight: 500;
+  }
+  .chart-data-input input {
+    width: 100%; padding: 5px 8px;
+    border: 1px solid var(--rule); border-radius: 3px;
+    font-family: var(--sans); font-size: 12px;
+    background: #fff; color: var(--ink);
+  }
+
+  /* ── PRINT / PDF ───────────────────────────────── */
+  @media print {
+    #edit-bar { display: none !important; }
+    .chart-data-input { display: none !important; }
+    .delta-selector { display: none !important; }
+    body { background: #fff; }
+    .page-wrap { padding: 40px; }
+    .kpi-cell, .chart-card, .narrative-cell, .ask-card { break-inside: avoid; }
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 18mm 18mm;
+  }
+
+  /* ── CUSTOMIZE PANEL ──────────────────────────── */
+  #customize-panel {
+    display: none;
+    position: fixed; top: 44px; right: 0; z-index: 99;
+    background: #fff; border-left: 1px solid #e0ddd6; border-bottom: 1px solid #e0ddd6;
+    width: 260px; padding: 16px 18px;
+    box-shadow: -4px 4px 24px rgba(0,0,0,.08);
+    border-radius: 0 0 0 8px;
+    font-family: var(--sans); font-size: 13px; color: var(--ink);
+  }
+  #customize-panel.open { display: block; }
+  .cp-title {
+    font-size: 10px; font-weight: 500; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-4); margin-bottom: 14px;
+  }
+  .cp-section { margin-bottom: 16px; }
+  .cp-label { font-size: 11px; color: var(--ink-3); margin-bottom: 8px; font-weight: 500; }
+  .cp-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cp-swatch {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform .1s, border-color .1s;
+    flex-shrink: 0;
+  }
+  .cp-swatch:hover { transform: scale(1.12); }
+  .cp-swatch.active { border-color: var(--ink); }
+  .cp-custom-color {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 1.5px dashed var(--ink-5); background: var(--paper-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--ink-4); overflow: hidden; position: relative;
+  }
+  .cp-custom-color input[type=color] {
+    position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;
+  }
+  .cp-fonts { display: flex; flex-direction: column; gap: 6px; }
+  .cp-font-opt {
+    padding: 7px 10px; border: 1px solid var(--rule); border-radius: 4px;
+    cursor: pointer; transition: border-color .1s, background .1s;
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .cp-font-opt:hover { border-color: var(--ink-4); }
+  .cp-font-opt.active { border-color: var(--accent); background: var(--accent-light); }
+  .cp-font-name { font-size: 12px; font-weight: 500; color: var(--ink); }
+  .cp-font-preview { font-size: 11px; color: var(--ink-4); }
+  .cp-divider { height: 1px; background: var(--rule); margin: 4px 0 16px; }
+  .cp-reset {
+    width: 100%; padding: 6px; background: none; border: 1px solid var(--rule);
+    border-radius: 4px; font-size: 11px; color: var(--ink-4); cursor: pointer;
+    font-family: var(--sans); transition: border-color .1s;
+  }
+  .cp-reset:hover { border-color: var(--ink-3); color: var(--ink); }
+
+</head>
+<body class="edit-mode">
+
+<!-- EDIT BAR -->
+<div id="edit-bar">
+  <span><strong>Edit mode</strong> — click any field to edit it directly</span>
+  <div class="bar-actions">
+    <button class="bar-btn" onclick="toggleEdit()">👁 Preview</button>
+    <button class="bar-btn" onclick="toggleCustomize()" id="customize-btn">🎨 Customize</button>
+    <button class="bar-btn primary" onclick="exportPDF()">↓ Export PDF</button>
+  </div>
+</div>
+
+<!-- CUSTOMIZE PANEL -->
+<div id="customize-panel">
+  <div class="cp-title">Brand &amp; Style</div>
+
+  <div class="cp-section">
+    <div class="cp-label">Accent color</div>
+    <div class="cp-swatches" id="cp-swatches">
+      <div class="cp-swatch active" data-accent="#1a3a5c" data-accent2="#2d5a8e" data-light="#e8f0f8" style="background:#1a3a5c" title="Navy"></div>
+      <div class="cp-swatch" data-accent="#1a3d2b" data-accent2="#2d6647" data-light="#e6f2ec" style="background:#1a3d2b" title="Forest"></div>
+      <div class="cp-swatch" data-accent="#3d1a5c" data-accent2="#6233a0" data-light="#f0eaf8" style="background:#3d1a5c" title="Violet"></div>
+      <div class="cp-swatch" data-accent="#5c1a1a" data-accent2="#8e2d2d" data-light="#f8eaea" style="background:#5c1a1a" title="Burgundy"></div>
+      <div class="cp-swatch" data-accent="#1a4a5c" data-accent2="#2d7a8e" data-light="#e6f4f8" style="background:#1a4a5c" title="Teal"></div>
+      <div class="cp-swatch" data-accent="#3a3a3a" data-accent2="#555555" data-light="#f0f0f0" style="background:#3a3a3a" title="Charcoal"></div>
+      <div class="cp-swatch" data-accent="#7a4a00" data-accent2="#a86800" data-light="#fdf3dc" style="background:#7a4a00" title="Amber"></div>
+      <div class="cp-custom-color" title="Custom color">
+        <span>+</span>
+        <input type="color" id="custom-color-input" value="#1a3a5c" oninput="applyCustomColor(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="cp-divider"></div>
+
+  <div class="cp-section">
+    <div class="cp-label">Display font (numbers &amp; headings)</div>
+    <div class="cp-fonts" id="cp-serif-fonts">
+      <div class="cp-font-opt active" data-font="'DM Serif Display', Georgia, serif" data-gfont="DM+Serif+Display">
+        <span class="cp-font-name" style="font-family:'DM Serif Display',Georgia,serif">DM Serif Display</span>
+        <span class="cp-font-preview">42,800 · Acme Inc.</span>
+      </div>
+      <div class="cp-font-opt" data-font="'Playfair Display', Georgia, serif" data-gfont="Playfair+Display:ital,wght@0,400;1,400">
+        <span class="cp-font-name" style="font-family:'Playfair Display',Georgia,serif">Playfair Display</span>
+        <span class="cp-font-preview">42,800 · Acme Inc.</span>
+      </div>
+      <div class="cp-font-opt" data-font="'Cormorant Garamond', Georgia, serif" data-gfont="Cormorant+Garamond:wght@400;600">
+        <span class="cp-font-name" style="font-family:'Cormorant Garamond',Georgia,serif">Cormorant Garamond</span>
+        <span class="cp-font-preview">42,800 · Acme Inc.</span>
+      </div>
+      <div class="cp-font-opt" data-font="Georgia, serif" data-gfont="">
+        <span class="cp-font-name" style="font-family:Georgia,serif">Georgia</span>
+        <span class="cp-font-preview">42,800 · Acme Inc. (system)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cp-divider"></div>
+
+  <div class="cp-section">
+    <div class="cp-label">Body font</div>
+    <div class="cp-fonts" id="cp-sans-fonts">
+      <div class="cp-font-opt active" data-font="'DM Sans', system-ui, sans-serif" data-gfont="DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500">
+        <span class="cp-font-name" style="font-family:'DM Sans',sans-serif">DM Sans</span>
+        <span class="cp-font-preview">Monthly Investor Update</span>
+      </div>
+      <div class="cp-font-opt" data-font="'Inter', system-ui, sans-serif" data-gfont="Inter:wght@300;400;500">
+        <span class="cp-font-name" style="font-family:'Inter',sans-serif">Inter</span>
+        <span class="cp-font-preview">Monthly Investor Update</span>
+      </div>
+      <div class="cp-font-opt" data-font="'IBM Plex Sans', system-ui, sans-serif" data-gfont="IBM+Plex+Sans:wght@300;400;500">
+        <span class="cp-font-name" style="font-family:'IBM Plex Sans',sans-serif">IBM Plex Sans</span>
+        <span class="cp-font-preview">Monthly Investor Update</span>
+      </div>
+      <div class="cp-font-opt" data-font="system-ui, sans-serif" data-gfont="">
+        <span class="cp-font-name">System default</span>
+        <span class="cp-font-preview">Monthly Investor Update</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cp-divider"></div>
+  <button class="cp-reset" onclick="resetCustomize()">Reset to defaults</button>
+</div>
+
+<div class="page-wrap" id="report">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <div>
+      <div class="company-name" contenteditable="true">Acme Inc.</div>
+      <div class="report-tagline" contenteditable="true">B2B SaaS · Seed Stage · Series A target Q4 2026</div>
+    </div>
+    <div class="report-meta">
+      <div class="report-label">Monthly Investor Update</div>
+      <div class="report-period" contenteditable="true">May 2026</div>
+      <div style="font-size:11px;color:var(--ink-4);margin-top:4px" contenteditable="true">Prepared by: Founder Name</div>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Key Metrics</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="kpi-grid">
+
+      <div class="kpi-cell">
+        <div class="kpi-label">MRR</div>
+        <div class="kpi-value" contenteditable="true">€42,800</div>
+        <div class="delta-wrap">
+          <span class="kpi-delta up" id="d-mrr">↑ +12% MoM</span>
+          <div class="delta-selector">
+            <span class="delta-opt active" onclick="setDelta('d-mrr','up',this)">↑ up</span>
+            <span class="delta-opt" onclick="setDelta('d-mrr','flat',this)">→ flat</span>
+            <span class="delta-opt" onclick="setDelta('d-mrr','down',this)">↓ down</span>
+          </div>
+        </div>
+        <div class="kpi-sub" contenteditable="true">ARR: €513,600</div>
+      </div>
+
+      <div class="kpi-cell">
+        <div class="kpi-label">Burn Rate</div>
+        <div class="kpi-value" contenteditable="true">€18,400</div>
+        <div class="delta-wrap">
+          <span class="kpi-delta flat" id="d-burn">→ flat MoM</span>
+          <div class="delta-selector">
+            <span class="delta-opt" onclick="setDelta('d-burn','up',this)">↑ up</span>
+            <span class="delta-opt active" onclick="setDelta('d-burn','flat',this)">→ flat</span>
+            <span class="delta-opt" onclick="setDelta('d-burn','down',this)">↓ down</span>
+          </div>
+        </div>
+        <div class="kpi-sub" contenteditable="true">Net burn: €12,100/mo</div>
+      </div>
+
+      <div class="kpi-cell">
+        <div class="kpi-label">Runway</div>
+        <div class="kpi-value" contenteditable="true">18 mo</div>
+        <div class="delta-wrap">
+          <span class="kpi-delta up" id="d-runway">↑ +2 vs last month</span>
+          <div class="delta-selector">
+            <span class="delta-opt active" onclick="setDelta('d-runway','up',this)">↑ up</span>
+            <span class="delta-opt" onclick="setDelta('d-runway','flat',this)">→ flat</span>
+            <span class="delta-opt" onclick="setDelta('d-runway','down',this)">↓ down</span>
+          </div>
+        </div>
+        <div class="kpi-sub" contenteditable="true">Cash: €220,000</div>
+      </div>
+
+      <div class="kpi-cell">
+        <div class="kpi-label">Churn</div>
+        <div class="kpi-value" contenteditable="true">1.8%</div>
+        <div class="delta-wrap">
+          <span class="kpi-delta down" id="d-churn">↑ +0.3% MoM</span>
+          <div class="delta-selector">
+            <span class="delta-opt" onclick="setDelta('d-churn','up',this)">↑ up</span>
+            <span class="delta-opt" onclick="setDelta('d-churn','flat',this)">→ flat</span>
+            <span class="delta-opt active" onclick="setDelta('d-churn','down',this)">↓ down</span>
+          </div>
+        </div>
+        <div class="kpi-sub" contenteditable="true">Logo churn: 2 customers</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Trends</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="two-col">
+
+      <!-- MRR CHART -->
+      <div class="chart-card">
+        <div class="chart-card-title">MRR Growth (6 months)</div>
+        <div class="chart-wrap">
+          <canvas id="mrrChart" role="img" aria-label="MRR growth over the last 6 months"></canvas>
+        </div>
+        <div class="chart-data-input">
+          <label>MRR values (comma-separated, last 6 months):</label>
+          <input type="text" id="mrr-data" value="26000,29500,33200,36800,38100,42800" oninput="updateMRR()">
+          <label style="margin-top:6px">Labels (comma-separated):</label>
+          <input type="text" id="mrr-labels" value="Dec,Jan,Feb,Mar,Apr,May" oninput="updateMRR()">
+        </div>
+      </div>
+
+      <!-- BURN CHART -->
+      <div class="chart-card">
+        <div class="chart-card-title">Burn vs Revenue (6 months)</div>
+        <div class="chart-wrap">
+          <canvas id="burnChart" role="img" aria-label="Monthly burn rate vs revenue over last 6 months"></canvas>
+        </div>
+        <div class="chart-data-input">
+          <label>Expenses (comma-separated):</label>
+          <input type="text" id="burn-data" value="21000,20500,19800,19200,18600,18400" oninput="updateBurn()">
+          <label style="margin-top:6px">Revenue (comma-separated):</label>
+          <input type="text" id="rev-data" value="26000,29500,33200,36800,38100,42800" oninput="updateBurn()">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NARRATIVE -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Monthly Narrative</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="narrative-grid">
+
+      <div class="narrative-cell">
+        <div class="narrative-cell-icon icon-green">✦</div>
+        <div class="narrative-cell-title">Highlights</div>
+        <ul class="bullet-list" id="highlights-list">
+          <li contenteditable="true">Closed 3 new enterprise accounts (€8,400 new MRR)</li>
+          <li contenteditable="true">Launched new onboarding flow — activation rate +22%</li>
+          <li contenteditable="true">Signed LOI with strategic partner in DACH region</li>
+        </ul>
+        <div id="add-highlight" style="margin-top:10px;display:none">
+          <button class="bar-btn" style="font-size:11px;padding:3px 10px;background:var(--paper-2);color:var(--ink-3);border-color:var(--rule)" onclick="addBullet('highlights-list')">+ Add item</button>
+        </div>
+      </div>
+
+      <div class="narrative-cell">
+        <div class="narrative-cell-icon icon-amber">⚡</div>
+        <div class="narrative-cell-title">Challenges</div>
+        <ul class="bullet-list" id="challenges-list">
+          <li contenteditable="true">Churn uptick from one churned mid-market account (€2,100 MRR)</li>
+          <li contenteditable="true">Engineering hiring slower than expected — 2 roles still open</li>
+          <li contenteditable="true">Sales cycle lengthening for deals above €5K ACV</li>
+        </ul>
+        <div id="add-challenge" style="margin-top:10px;display:none">
+          <button class="bar-btn" style="font-size:11px;padding:3px 10px;background:var(--paper-2);color:var(--ink-3);border-color:var(--rule)" onclick="addBullet('challenges-list')">+ Add item</button>
+        </div>
+      </div>
+
+      <div class="narrative-cell">
+        <div class="narrative-cell-icon" style="background:var(--accent-light);font-size:14px">→</div>
+        <div class="narrative-cell-title">Next Month Focus</div>
+        <ul class="bullet-list" id="focus-list">
+          <li contenteditable="true">Close 2 pipeline deals (€6K MRR target)</li>
+          <li contenteditable="true">Ship v2.4 — pricing page redesign</li>
+          <li contenteditable="true">Finalize Series A pitch deck</li>
+        </ul>
+        <div id="add-focus" style="margin-top:10px;display:none">
+          <button class="bar-btn" style="font-size:11px;padding:3px 10px;background:var(--paper-2);color:var(--ink-3);border-color:var(--rule)" onclick="addBullet('focus-list')">+ Add item</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FINANCIALS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Financials Summary</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="chart-card" style="padding:0;overflow:hidden">
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th contenteditable="true">Mar 2026</th>
+            <th contenteditable="true">Apr 2026</th>
+            <th contenteditable="true">May 2026</th>
+            <th>MoM</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MRR</td>
+            <td contenteditable="true">€36,800</td>
+            <td contenteditable="true">€38,100</td>
+            <td contenteditable="true">€42,800</td>
+            <td class="positive">+12.3%</td>
+          </tr>
+          <tr>
+            <td>New MRR</td>
+            <td contenteditable="true">€4,200</td>
+            <td contenteditable="true">€3,800</td>
+            <td contenteditable="true">€8,400</td>
+            <td class="positive">+121%</td>
+          </tr>
+          <tr>
+            <td>Churned MRR</td>
+            <td contenteditable="true">€800</td>
+            <td contenteditable="true">€2,100</td>
+            <td contenteditable="true">€1,700</td>
+            <td class="positive">−19%</td>
+          </tr>
+          <tr>
+            <td>Gross Burn</td>
+            <td contenteditable="true">€19,200</td>
+            <td contenteditable="true">€18,600</td>
+            <td contenteditable="true">€18,400</td>
+            <td class="positive">−1.1%</td>
+          </tr>
+          <tr class="total-row">
+            <td>Net Burn</td>
+            <td contenteditable="true">€13,200</td>
+            <td contenteditable="true">€13,800</td>
+            <td contenteditable="true">€12,100</td>
+            <td class="positive">−12.3%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ASKS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">Asks &amp; How You Can Help</span>
+      <div class="section-rule"></div>
+    </div>
+    <div class="asks-grid">
+      <div class="ask-card">
+        <div class="ask-number">01</div>
+        <div class="ask-text" contenteditable="true">Introductions to HR/People ops leaders at Series B+ companies — ideal ICP for our new enterprise plan.</div>
+      </div>
+      <div class="ask-card">
+        <div class="ask-number">02</div>
+        <div class="ask-text" contenteditable="true">Referrals to Series A investors in the EU fintech space — raising €2M bridge in Q3 2026.</div>
+      </div>
+      <div class="ask-card">
+        <div class="ask-number">03</div>
+        <div class="ask-text" contenteditable="true">Any warm intro to DACH enterprise buyers — we have a partner program launching in June.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="report-footer">
+    <div class="footer-confidential">CONFIDENTIAL — For investor use only. Do not forward without permission.</div>
+    <div class="footer-page" contenteditable="true">acmeinc.com · hello@acmeinc.com</div>
+  </div>
+
+</div><!-- end page-wrap -->
+
+<script>
+/* ── EDIT MODE ────────────────────────────────── */
+let editMode = true;
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.querySelector('#edit-bar button.bar-btn:not(.primary)').textContent = editMode ? '👁 Preview' : '✏️ Edit';
+  // show/hide add buttons
+  document.querySelectorAll('[id^="add-"]').forEach(el => {
+    el.style.display = editMode ? 'block' : 'none';
+  });
+}
+
+/* ── DELTA TOGGLE ─────────────────────────────── */
+function setDelta(id, type, btn) {
+  const el = document.getElementById(id);
+  const texts = {
+    mrr: { up: '↑ +12% MoM', flat: '→ flat MoM', down: '↓ −3% MoM' },
+    burn: { up: '↑ +5% MoM', flat: '→ flat MoM', down: '↓ −5% MoM' },
+    runway: { up: '↑ +2 vs last month', flat: '→ unchanged', down: '↓ −1 vs last month' },
+    churn: { up: '↑ +0.3% MoM', flat: '→ flat MoM', down: '↓ −0.2% MoM' },
+  };
+  const key = id.replace('d-', '');
+  el.className = 'kpi-delta ' + type;
+  el.textContent = texts[key][type];
+  btn.closest('.delta-selector').querySelectorAll('.delta-opt').forEach(o => o.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ── ADD BULLET ───────────────────────────────── */
+function addBullet(listId) {
+  const ul = document.getElementById(listId);
+  const li = document.createElement('li');
+  li.contentEditable = 'true';
+  li.textContent = 'New item — click to edit';
+  ul.appendChild(li);
+  li.focus();
+  const range = document.createRange();
+  range.selectNodeContents(li);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+}
+
+/* ── CHARTS ───────────────────────────────────── */
+const chartDefaults = {
+  font: { family: "'DM Sans', sans-serif", size: 11 },
+  color: '#8c92a4',
+};
+Chart.defaults.font = chartDefaults.font;
+Chart.defaults.color = chartDefaults.color;
+
+// MRR Chart
+function getMRRData() {
+  const vals = document.getElementById('mrr-data').value.split(',').map(v => parseInt(v.trim()));
+  const labels = document.getElementById('mrr-labels').value.split(',').map(v => v.trim());
+  return { vals, labels };
+}
+
+let mrrChart, burnChart;
+
+function buildMRR() {
+  const { vals, labels } = getMRRData();
+  const ctx = document.getElementById('mrrChart').getContext('2d');
+  mrrChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'MRR (€)',
+        data: vals,
+        backgroundColor: vals.map((_, i) => i === vals.length - 1 ? '#1a3a5c' : '#c4d8ee'),
+        borderRadius: 3,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, border: { display: false } },
+        y: {
+          grid: { color: '#e6e4dc', lineWidth: 1 },
+          border: { display: false },
+          ticks: { callback: v => '€' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }
+        }
+      }
+    }
+  });
+}
+
+function updateMRR() {
+  if (mrrChart) mrrChart.destroy();
+  buildMRR();
+}
+
+// Burn vs Revenue Chart
+function getBurnData() {
+  const burn = document.getElementById('burn-data').value.split(',').map(v => parseInt(v.trim()));
+  const rev = document.getElementById('rev-data').value.split(',').map(v => parseInt(v.trim()));
+  const labels = document.getElementById('mrr-labels').value.split(',').map(v => v.trim());
+  return { burn, rev, labels };
+}
+
+function buildBurn() {
+  const { burn, rev, labels } = getBurnData();
+  const ctx = document.getElementById('burnChart').getContext('2d');
+  burnChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Revenue',
+          data: rev,
+          borderColor: '#1a4d3a',
+          backgroundColor: 'rgba(26,77,58,.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: .3,
+          pointRadius: 3,
+          pointBackgroundColor: '#1a4d3a',
+        },
+        {
+          label: 'Expenses',
+          data: burn,
+          borderColor: '#7a1f1f',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [4, 3],
+          tension: .3,
+          pointRadius: 3,
+          pointBackgroundColor: '#7a1f1f',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: { boxWidth: 10, boxHeight: 2, padding: 12, font: { size: 11 } }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false } },
+        y: {
+          grid: { color: '#e6e4dc', lineWidth: 1 },
+          border: { display: false },
+          ticks: { callback: v => '€' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v) }
+        }
+      }
+    }
+  });
+}
+
+function updateBurn() {
+  if (burnChart) burnChart.destroy();
+  buildBurn();
+}
+
+buildMRR();
+buildBurn();
+
+// Show add buttons in edit mode
+document.querySelectorAll('[id^="add-"]').forEach(el => {
+  el.style.display = 'block';
+});
+
+/* ── PDF EXPORT ───────────────────────────────── */
+function exportPDF() {
+  const wasEdit = editMode;
+  if (editMode) toggleEdit();
+  closeCustomize();
+  setTimeout(() => {
+    window.print();
+    if (wasEdit) setTimeout(() => toggleEdit(), 500);
+  }, 150);
+}
+
+/* ── CUSTOMIZE PANEL ──────────────────────────── */
+function toggleCustomize() {
+  document.getElementById('customize-panel').classList.toggle('open');
+}
+function closeCustomize() {
+  document.getElementById('customize-panel').classList.remove('open');
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('customize-panel');
+  const btn   = document.getElementById('customize-btn');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== btn) {
+    panel.classList.remove('open');
+  }
+});
+
+// Accent color swatches
+document.querySelectorAll('#cp-swatches .cp-swatch').forEach(sw => {
+  sw.addEventListener('click', function() {
+    document.querySelectorAll('#cp-swatches .cp-swatch').forEach(s => s.classList.remove('active'));
+    this.classList.add('active');
+    applyAccent(this.dataset.accent, this.dataset.accent2, this.dataset.light);
+  });
+});
+
+function applyAccent(accent, accent2, light) {
+  const root = document.documentElement;
+  root.style.setProperty('--accent',       accent);
+  root.style.setProperty('--accent-2',     accent2);
+  root.style.setProperty('--accent-light', light);
+  // Update edit bar background
+  document.getElementById('edit-bar').style.background = accent;
+  // Update MRR chart last bar color
+  if (mrrChart) {
+    const vals = mrrChart.data.datasets[0].data;
+    mrrChart.data.datasets[0].backgroundColor = vals.map((_, i) =>
+      i === vals.length - 1 ? accent : lightenHex(accent, 0.65)
+    );
+    mrrChart.update();
+  }
+}
+
+function applyCustomColor(hex) {
+  const accent2 = darkenHex(hex, 0.15);
+  const light   = lightenHex(hex, 0.88);
+  document.querySelectorAll('#cp-swatches .cp-swatch').forEach(s => s.classList.remove('active'));
+  applyAccent(hex, accent2, light);
+}
+
+function lightenHex(hex, amount) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  const lr = Math.round(r + (255-r)*amount), lg = Math.round(g + (255-g)*amount), lb = Math.round(b + (255-b)*amount);
+  return '#' + [lr,lg,lb].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+function darkenHex(hex, amount) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  const dr = Math.round(r*(1-amount)), dg = Math.round(g*(1-amount)), db = Math.round(b*(1-amount));
+  return '#' + [dr,dg,db].map(v => v.toString(16).padStart(2,'0')).join('');
+}
+
+// Serif font options
+document.querySelectorAll('#cp-serif-fonts .cp-font-opt').forEach(opt => {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('#cp-serif-fonts .cp-font-opt').forEach(o => o.classList.remove('active'));
+    this.classList.add('active');
+    loadAndApplyFont(this.dataset.gfont, '--serif', this.dataset.font);
+  });
+});
+
+// Sans font options
+document.querySelectorAll('#cp-sans-fonts .cp-font-opt').forEach(opt => {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('#cp-sans-fonts .cp-font-opt').forEach(o => o.classList.remove('active'));
+    this.classList.add('active');
+    loadAndApplyFont(this.dataset.gfont, '--sans', this.dataset.font);
+    // Update chart font
+    Chart.defaults.font.family = this.dataset.font;
+    if (mrrChart)  { mrrChart.destroy();  buildMRR(); }
+    if (burnChart) { burnChart.destroy(); buildBurn(); }
+  });
+});
+
+function loadAndApplyFont(gfont, cssVar, fontStack) {
+  if (gfont) {
+    const id = 'gf-' + gfont.replace(/[^a-z]/gi,'');
+    if (!document.getElementById(id)) {
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=' + gfont + '&display=swap';
+      document.head.appendChild(link);
+    }
+  }
+  document.documentElement.style.setProperty(cssVar, fontStack);
+}
+
+function resetCustomize() {
+  // Reset accent
+  applyAccent('#1a3a5c', '#2d5a8e', '#e8f0f8');
+  document.querySelectorAll('#cp-swatches .cp-swatch').forEach((s,i) => s.classList.toggle('active', i===0));
+  document.getElementById('custom-color-input').value = '#1a3a5c';
+  // Reset serif
+  document.querySelectorAll('#cp-serif-fonts .cp-font-opt').forEach((o,i) => o.classList.toggle('active', i===0));
+  loadAndApplyFont('DM+Serif+Display', '--serif', "'DM Serif Display', Georgia, serif");
+  // Reset sans
+  document.querySelectorAll('#cp-sans-fonts .cp-font-opt').forEach((o,i) => o.classList.toggle('active', i===0));
+  loadAndApplyFont("DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500", '--sans', "'DM Sans', system-ui, sans-serif");
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+  if (mrrChart)  { mrrChart.destroy();  buildMRR(); }
+  if (burnChart) { burnChart.destroy(); buildBurn(); }
+}
+</script>
+</body>
+</html>
